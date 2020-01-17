@@ -2,8 +2,8 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-11 15:47:05
- * @LastEditTime: 2019-11-07 11:48:32
- * @LastEditors: Please set LastEditors
+ * @LastEditTime : 2020-01-16 17:03:57
+ * @LastEditors  : Please set LastEditors
  */
 import { Controller, Post, Body } from '@nestjs/common'
 import {  AuthService} from './auth.service'
@@ -18,7 +18,6 @@ export class AuthController {
     @Post('login')
     @HttpProcessor.handle('登录')
     login(@Body() body: LoginDto) {
-        console.log(body, '=========')
         return this.authSerivce.login(body)
     }
 }

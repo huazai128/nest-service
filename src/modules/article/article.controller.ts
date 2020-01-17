@@ -2,14 +2,14 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-08-27 22:32:52
- * @LastEditTime: 2019-11-07 11:38:35
- * @LastEditors: Please set LastEditors
+ * @LastEditTime : 2020-01-17 14:59:49
+ * @LastEditors  : Please set LastEditors
  */
 import * as lodash from 'lodash'
 import { PaginateResult } from 'mongoose'
 import { ESortType } from '@app/interfaces/state.interface'
 import { HttpProcessor } from '@app/decorators/http.decorator'
-import { Controller, Get, Post, Body, Put, HttpStatus, Patch, Delete } from '@nestjs/common'
+import { Controller, Get, Post, Body, Put, HttpStatus, Patch, Delete, Bind } from '@nestjs/common'
 import { QueryParams, EQueryParamsField as QueryField } from '@app/decorators/query-params.decorator'
 import { TagService } from '@app/modules/tag/tag.service'
 import { ArticleService } from './article.service'
@@ -23,8 +23,7 @@ export class ArticleController {
     constructor(
         private readonly articleService: ArticleService,
         private readonly tagService: TagService
-    ) {
-    }
+    ) {}
 
     @Get()
     @HttpProcessor.paginate()
@@ -80,7 +79,6 @@ export class ArticleController {
     @Delete()
     @HttpProcessor.handle('批量删除')
     batchDelete(@Body() { ids }) {
-        console.log(ids, 'ids=======')
         return this.articleService.delete(ids)
     }
 }

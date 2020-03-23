@@ -2,10 +2,10 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-26 14:23:46
- * @LastEditTime: 2019-08-27 22:27:49
- * @LastEditors: Please set LastEditors
+ * @LastEditTime : 2020-01-17 18:04:26
+ * @LastEditors  : Please set LastEditors
  */
-import { PipeTransform, ArgumentMetadata, BadRequestException, Injectable } from '@nestjs/common'
+import { PipeTransform, ArgumentMetadata, Injectable } from '@nestjs/common'
 import { ValidationError } from '@app/errors/validation.error'
 import { validate } from 'class-validator'
 import { plainToClass } from 'class-transformer'

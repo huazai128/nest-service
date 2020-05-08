@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-20 22:31:00
- * @LastEditTime: 2019-10-28 11:19:37
+ * @LastEditTime: 2020-05-02 17:06:06
  * @LastEditors: Please set LastEditors
  */
 import * as lodash from 'lodash'
@@ -41,7 +41,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
             data.error = `资源不存在`
             data.msg = `接口 ${request.method} -> ${request.url} 无效`
         }
-        console.log(data, 'data======')
         return response.status(resultStatus).jsonp(data)
     }
 }

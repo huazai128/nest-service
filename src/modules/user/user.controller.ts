@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2019-06-11 15:07:52
- * @LastEditTime: 2019-10-28 10:39:18
- * @LastEditors: your name
+ * @LastEditTime: 2020-04-28 22:14:16
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/user/user.controller.ts
  */
-import { Get, Post, Body, Query, Controller } from '@nestjs/common'
+import { Get, Post, Body, Query, Controller, } from '@nestjs/common'
 import { UserService } from './user.service'
 import CreateDto from './dto/create.dto'
 
@@ -22,5 +22,5 @@ export class UserController {
     @Post()
     create(@Body() body: CreateDto) {
         return this.userService.createUser(body)
-    }s
+    }
 }

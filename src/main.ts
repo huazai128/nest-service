@@ -1,10 +1,3 @@
-/*
- * @Description: In User Settings Edit
- * @Author: your name
- * @Date: 2019-07-10 17:02:39
- * @LastEditTime : 2020-01-16 16:47:56
- * @LastEditors  : Please set LastEditors
- */
 import { NestFactory, Reflector } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as helmet from 'helmet'

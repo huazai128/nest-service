@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-17 18:01:38
- * @LastEditTime: 2019-11-07 11:47:27
+ * @LastEditTime: 2020-04-26 14:50:00
  * @LastEditors: Please set LastEditors
  */
 import { Injectable, NestMiddleware } from '@nestjs/common'
@@ -51,7 +51,6 @@ export class AuthMiddleware implements NestMiddleware {
         }
         const { authorization } = req.headers
         const auth = authorization && authorization.split(' ') || []
-        console.log(auth, 'auth=========')
         if (!!auth.length && auth[0] === 'Bearer') {
             const token = auth[1]
             try {

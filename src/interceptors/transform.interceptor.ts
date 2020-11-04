@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-18 11:32:08
- * @LastEditTime: 2019-08-30 15:48:06
+ * @LastEditTime: 2020-11-03 15:25:21
  * @LastEditors: Please set LastEditors
  */
 import { Observable } from 'rxjs'
@@ -54,6 +54,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, THttpResponse
         return call$.pipe(
             map((data: any = {}) => {
                 const result = !usePaginate ? (data || {}) : handleResult<T>(data, request)
+                console.log(data, 'data==')
                 return data.msg ? { code: 0, ...data } : { result, code: 200, msg: message  }
             })
         )

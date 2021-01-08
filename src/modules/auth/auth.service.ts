@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-11 15:46:55
- * @LastEditTime: 2019-11-07 11:50:00
+ * @LastEditTime: 2021-01-07 17:04:19
  * @LastEditors: Please set LastEditors
  */
 import { Injectable } from '@nestjs/common'
@@ -43,7 +43,6 @@ export class AuthService extends ServiceExt {
         if (!user) {
             return { msg: '用户不存在' }
         }
-        console.log(user.password, cryptoData(password))
         if (user.password !== cryptoData(password)) {
             return { msg: '密码错误' }
         }

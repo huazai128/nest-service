@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-22 18:54:28
- * @LastEditTime: 2021-01-07 18:43:36
+ * @LastEditTime: 2021-01-13 10:29:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/upload/upload.service.ts
@@ -63,7 +63,7 @@ export class UploadService extends ServiceExt {
     }
 
     /**
-     * 判断文件存在
+     * 获取文件前端
      * @private
      * @param {string} filename
      * @returns

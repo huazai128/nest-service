@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-22 18:54:28
- * @LastEditTime: 2021-01-13 10:29:59
+ * @LastEditTime: 2021-01-25 18:28:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/upload/upload.service.ts
@@ -13,7 +13,9 @@ import { existsSync, mkdirs, move, readdir, createWriteStream, createReadStream,
 
 @Injectable()
 export class UploadService extends ServiceExt {
-
+    constructor() {
+        super()
+    }
     // 上传文件存放目录
     private UPLOAD_DIR: string = resolve(__dirname, '../../../', 'uploads')
 

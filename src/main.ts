@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2019-07-10 17:02:39
+ * @LastEditTime: 2021-01-25 17:25:36
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /nest-service/src/main.ts
+ */
 import { NestFactory, Reflector } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as helmet from 'helmet'
@@ -11,6 +19,7 @@ import { HttpExceptionFilter } from '@app/filters/error.filter'
 import { TimeoutInterceptor } from '@app/interceptors/timeout.interceptor'
 import { ValidationPipe } from '@app/pipes/validation.pipe'
 
+// 通过pm2 开启集群
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.use(helmet())

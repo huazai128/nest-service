@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-10-05 21:43:45
- * @LastEditTime: 2019-10-25 14:48:43
+ * @LastEditTime: 2021-01-27 14:55:03
  * @LastEditors: Please set LastEditors
  */
 import { RedisClient } from 'redis'
@@ -69,19 +69,28 @@ export interface ICacheIntervalIOOption<T> extends ICacheIntervalOption<T> {
 
 @Injectable()
 export class CacheService {
-
+    // 此处提供redis相关挨批操作
+    public redisClient: RedisClient
+    // 页面缓存
     private cache!: ICacheManager
-
     // 通过注入拿到config.service返回的配置信息
     constructor(@Inject(CACHE_MANAGER) cache: ICacheManager) {
+        console.log(cache)
         this.cache = cache
+        this.redisClient = this.cache.store.getClient()
         this.redisClient.on('ready', () => {
             console.info('Redis 已准备好！')
         })
-    }
-
-    private get redisClient(): RedisClient {
-        return this.cache.store.getClient()
+        // 监听redis事件
+        const arr = ['connect', 'reconnecting', 'end', 'close', 'error']
+        arr.forEach(e => {
+            this.redisClient.on(e, function(evt) {
+                console.log('redis status: ' + e)
+                if ('error' === e) {
+                    console.error(evt)
+                }
+            })
+        })
     }
 
     // 客户端是否可用
@@ -89,6 +98,7 @@ export class CacheService {
         return this.redisClient.connected
     }
 
+    // 获取值
     public get<T>(key: TCacheKey): TCacheResult<T> {
         if (!this.checkCacheServiceAvailable) {
             return Promise.reject('缓存客户端没准备好！')
@@ -96,11 +106,30 @@ export class CacheService {
         return this.cache.get(key)
     }
 
+    // 缓存值
     public set<T>(key: TCacheKey, value: any, options?: { ttl: number }): TCacheResult<T> {
         if (!this.checkCacheServiceAvailable) {
             return Promise.reject('缓存客户端没准备好！')
         }
         return this.cache.set(key, value, options)
+    }
+
+    /**
+     * 获取List 长度
+     * @param {string} key
+     * @returns {Promise<number>}
+     * @memberof CacheService
+     */
+    public llen(key: string): Promise<number> {
+        return new Promise((resolve, reject) => {
+            this.redisClient.llen(key, (err, len) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(len)
+                }
+            })
+        })
     }
     /**
      * @function promise

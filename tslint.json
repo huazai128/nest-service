@@ -15,7 +15,7 @@
     "indent": false,
     "only-arrow-functions": false,
     "ordered-imports": [false],
-    "max-line-length": [true, 280],
+    "max-line-length": [true, 340],
     "member-ordering": [false],
     "interface-name": [false],
     "arrow-parens": false,

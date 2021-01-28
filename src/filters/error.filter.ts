@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-06-20 22:31:00
- * @LastEditTime: 2020-11-03 15:25:32
+ * @LastEditTime: 2021-01-25 17:02:44
  * @LastEditors: Please set LastEditors
  */
 import * as lodash from 'lodash'
@@ -21,7 +21,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     catch(exception: HttpException, host: ArgumentsHost) {
         const request = host.switchToHttp().getRequest()
         const response = host.switchToHttp().getResponse()
-        // console.log(exception, 'exception========')
         const status = exception.getStatus() || HttpStatus.INTERNAL_SERVER_ERROR
         const errorOption: TExceptionOption = exception.getResponse() as TExceptionOption
         const isString = (value): value is TMessage => lodash.isString(value)

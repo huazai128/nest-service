@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-22 18:53:14
- * @LastEditTime: 2021-01-07 17:42:39
+ * @LastEditTime: 2021-01-26 17:07:57
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/upload/upload.controller.ts
@@ -14,9 +14,7 @@ import { UploadService } from './upload.service'
 export class UploadController {
     constructor(
         private readonly uploadService: UploadService
-    ) {
-        console.log(1)
-    }
+    ) {}
     @Get('verify')
     public verifyUpload(@Query() query: any) {
         return this.uploadService.verifyUpload(query)

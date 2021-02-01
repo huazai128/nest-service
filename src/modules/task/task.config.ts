@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 18:09:09
- * @LastEditTime: 2021-01-27 19:16:29
+ * @LastEditTime: 2021-02-01 10:16:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.config.ts
@@ -19,8 +19,13 @@ export class PhantomTask {
     public clientPage: WebPage
     public phantomInstance: PhantomJS
     private num: number = 0
+    private event: EventEmitter
     constructor() {
         this.initTask()
+        if (this.event) {
+            this.event = new EventEmitter()
+        }
+        console.log('=======初始化了')
     }
     /**
      * 初始化访问页面
@@ -57,6 +62,7 @@ export class PhantomTask {
                 })
                 // 捕获到alert
                 this.clientPage.on('onAlert', (data) => {
+                    this.event.emit('imageData', data)
                     console.log('onAlert:========', data)
                 })
                 // 捕获所有page上下文发生的javascript错误
@@ -67,11 +73,19 @@ export class PhantomTask {
                 this.clientPage.on('onConsoleMessage', (msg, lineNum, sourceId) => {
                     console.log('onConsoleMessage ------ ', msg, lineNum, sourceId)
                 })
-                // 打卡页面 // es6代码不支持, 也不支持伪ssr
+                // 在page创建后触发
+                this.clientPage.on('onInitialized', () => {
+                    console.log('[phantomjs task log]page创建后触发')
+                })
+                // 监听url变化
+                this.clientPage.on('onUrlChanged', (targetUrl) => {
+                    console.log('[phantomjs task log]监听url', targetUrl)
+                })
+                // 打卡页面, es6代码不支持, 也不支持伪ssr, 千聊项目所使用的是ssr,获取的是html文件不包含react代码
                 const result = await this.clientPage.open('http://m.dev1.qlchat.com/fire/test')
                 // 查看页面
                 const content = await this.clientPage.property('content')
-                console.log(content)
+                // console.log(content)
                 console.log('[phantomjs task log]完成页面加载', result)
                 return result
             } catch (error) {
@@ -80,13 +94,39 @@ export class PhantomTask {
                 this.phantomInstance = null
                 this.clientPage = null
                 // 限制次数
-                if (this.num < 3) {
+                if (this.num < 10) {
                     this.num++
                     setTimeout(() => {
                         this.initTask
                     }, 2000)
+                } else {
+                    console.error('启动次数达到上线10次，请检查业务逻辑!!!')
                 }
             }
         }
+    }
+
+    /**
+     * 创建画卡数据传递
+     * @param {*} cardData
+     * @returns
+     * @memberof PhantomTask
+     */
+    public async createShareCard(cardData) {
+        if (!this.clientPage) {
+            console.error('[phantomjs task error]: 页面未初始化成功！')
+            return null
+        }
+        return new Promise((resolve, reject) => {
+            this.event.once('imageData', (data) => {
+                console.log('[phantomjs task log]: 图片生产完成')
+                resolve(data)
+            })
+            // page打开页面的上下文（下文直接用page上下文指代）执行function的功能
+            this.clientPage.evaluate((data: any) => {
+                console.log(data, '====')
+            }, [cardData])
+        })
+
     }
 }

@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-10-05 21:43:45
- * @LastEditTime: 2021-01-27 14:55:03
+ * @LastEditTime: 2021-01-30 13:15:32
  * @LastEditors: Please set LastEditors
  */
 import { RedisClient } from 'redis'
@@ -75,7 +75,6 @@ export class CacheService {
     private cache!: ICacheManager
     // 通过注入拿到config.service返回的配置信息
     constructor(@Inject(CACHE_MANAGER) cache: ICacheManager) {
-        console.log(cache)
         this.cache = cache
         this.redisClient = this.cache.store.getClient()
         this.redisClient.on('ready', () => {
@@ -112,6 +111,44 @@ export class CacheService {
             return Promise.reject('缓存客户端没准备好！')
         }
         return this.cache.set(key, value, options)
+    }
+
+    /**
+     * 列表左侧添加
+     * @param {TCacheKey} key
+     * @param {*} value
+     * @returns {TCacheResult<string>}
+     * @memberof CacheService
+     */
+    public lpush(key: TCacheKey, value: any): TCacheResult<string> {
+        return new Promise((resolve, reject) => {
+            this.redisClient.lpush(key, value, (err) => {
+                if (err) {
+                    console.error('[task error (share card)]: 添加任务到队列失败 ', err)
+                    reject('fail')
+                } else {
+                    resolve('success')
+                }
+            })
+        })
+    }
+
+    /**
+     * 获取List 最后的值
+     * @param {TCacheKey} key
+     * @returns {TCacheResult}
+     * @memberof CacheService
+     */
+    public rpop(key: TCacheKey): TCacheResult<any> {
+        return new Promise((resolve, reject) => {
+            this.redisClient.rpop(key, (err, data) => {
+                if (err) {
+                    reject()
+                } else {
+                    resolve(data)
+                }
+            })
+        })
     }
 
     /**

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 18:09:09
- * @LastEditTime: 2021-02-01 10:16:04
+ * @LastEditTime: 2021-02-06 11:02:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.config.ts
@@ -21,8 +21,7 @@ export class PhantomTask {
     private num: number = 0
     private event: EventEmitter
     constructor() {
-        this.initTask()
-        if (this.event) {
+        if (!this.event) {
             this.event = new EventEmitter()
         }
         console.log('=======初始化了')
@@ -112,7 +111,7 @@ export class PhantomTask {
      * @returns
      * @memberof PhantomTask
      */
-    public async createShareCard(cardData) {
+    public async createShareCard(cardData): Promise<string> {
         if (!this.clientPage) {
             console.error('[phantomjs task error]: 页面未初始化成功！')
             return null
@@ -123,8 +122,13 @@ export class PhantomTask {
                 resolve(data)
             })
             // page打开页面的上下文（下文直接用page上下文指代）执行function的功能
-            this.clientPage.evaluate((data: any) => {
-                console.log(data, '====')
+            this.clientPage.evaluate(function(data) {
+                // 不支持es6 语法
+                console.log('提供window操作， 例如触发画卡功能')
+                // const test = () => {
+                //     console.log(1)
+                // }
+                // test()
             }, [cardData])
         })
 

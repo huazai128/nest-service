@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-26 18:15:56
- * @LastEditTime: 2021-01-28 11:43:30
+ * @LastEditTime: 2021-02-05 17:51:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.interface.ts
@@ -14,7 +14,7 @@ export interface TaskDrawModel {
     // 回调接口
     cbApi: string
     // 唯一标示
-    taskKey: string
+    taskKey?: string
     // 用户Id
     userId: string
     // 画卡ID

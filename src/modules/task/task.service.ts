@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 17:27:43
- * @LastEditTime: 2021-02-06 11:11:14
+ * @LastEditTime: 2021-02-06 11:43:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.service.ts
@@ -32,6 +32,7 @@ export class TaskService extends ServiceExt {
     private currentTaskData: any = null
     // 判断是否有新任务添加进来
     private isJoin: boolean = false
+    private isClear: boolean = false
     constructor(
         private readonly httpService: HttpService,
         private readonly cacheService: CacheService,
@@ -47,6 +48,7 @@ export class TaskService extends ServiceExt {
      */
     public async cardTask(body: TaskDrawModel) {
         this.isJoin = true
+        this.isClear = false
         // 产生唯一标识， 用于后续逻辑判断
         body.taskKey = Date.now() + '' + Math.round(Math.random() * 1000)
         const data = JSON.stringify(body).replace(/\u2028/g, '')
@@ -96,7 +98,19 @@ export class TaskService extends ServiceExt {
                             reject(error)
                         }
                     }),
-                ])
+                ]).then(() => {
+                    this.currentTaskData = null
+                    if (this.isClear && !this.isJoin) {
+                        console.log('[task log (share card)], 当前所有任务已完成，不在重新递归')
+                    } else {
+                        this.taskRun()
+                    }
+                }).catch((error) => { // promise的错误无法被外部捕获
+                    const backData = JSON.stringify(this.currentTaskData) + '\n'
+                    console.error('任务失败, data=', backData, ' error info=', error)
+                    this.currentTaskData = null
+                    this.taskRun()
+                })
             }
         } catch (error) {
             console.error('[task log (share card)]: 查询剩余任务数量出错', error)
@@ -130,10 +144,11 @@ export class TaskService extends ServiceExt {
                 console.log(`taskKey=${taskKey} --- shareData.taskKey=${shareData.taskKey}`)
                 // 判断是否是否一致
                 if (taskKey === shareData.taskKey) {
-                    console.log('taskKey')
+                    console.log('画卡成功开始请求回调接口---------')
                     this.requestCallback(imageUrl, shareData)
                 } else {
                     console.log('任务已超时，不做推卡处理')
+                    // throw new Error('任务超时了， 重新开始画卡')
                 }
             } else { // 如果列队中没有存在任务时
                 console.log('[task log (share card)] 队列中没有任务堆积, data = null')
@@ -203,19 +218,21 @@ export class TaskService extends ServiceExt {
     private async clearTask() {
         const len: number = await this.cacheService.llen(this.SHARE_CARD_DATA)
         const len1: number = await this.cacheService.llen(this.HEIGH_CARD_KEY)
+        console.log(`[task log] 重新获取所有任务：SHARE_CARD_DATA=== ${len}, HEIGH_CARD_KEY=== ${len1}, 当前是否有新的任务添加进来：isJoin=${ this.isJoin }`)
         // 如果所有任务都没有，并且也没有新的任务添加进来，则清除
         if (len === 0 && len1 === 0 && !this.isJoin) {
             this.phantomTask.phantomInstance.exit()
             this.phantomTask.phantomInstance = null
             this.phantomTask.clientPage = null
+            this.isClear = true
         } else {
+            // 如果没有新任务添加, 则查询缓存，否则获取最新的任务
             if (len > 0) {
                 this.currentRedisKey = this.SHARE_CARD_DATA
             }
             if (len1 > 0) {
                 this.currentRedisKey = this.HEIGH_CARD_KEY
             }
-            this.taskRun()
         }
     }
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 17:27:43
- * @LastEditTime: 2021-02-06 11:43:51
+ * @LastEditTime: 2021-02-06 11:45:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.service.ts
@@ -32,6 +32,7 @@ export class TaskService extends ServiceExt {
     private currentTaskData: any = null
     // 判断是否有新任务添加进来
     private isJoin: boolean = false
+    // 用于标识是否清除page实例
     private isClear: boolean = false
     constructor(
         private readonly httpService: HttpService,
@@ -148,7 +149,6 @@ export class TaskService extends ServiceExt {
                     this.requestCallback(imageUrl, shareData)
                 } else {
                     console.log('任务已超时，不做推卡处理')
-                    // throw new Error('任务超时了， 重新开始画卡')
                 }
             } else { // 如果列队中没有存在任务时
                 console.log('[task log (share card)] 队列中没有任务堆积, data = null')

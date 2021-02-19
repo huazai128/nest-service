@@ -1,14 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 17:27:43
- * @LastEditTime: 2021-02-06 11:45:32
+ * @LastEditTime: 2021-02-13 15:57:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.service.ts
  */
 import { Injectable, HttpService } from '@nestjs/common'
 import ServiceExt from '@app/utils/serviceExt'
-import { PhantomTask } from './task.config'
+import { PhantomTask } from './task.config.service'
 import { TaskDrawModel } from './task.interface'
 import { CacheService, TCacheIntervalResult } from '@app/processors/cache/cache.service'
 import { retry } from 'rxjs/operators'

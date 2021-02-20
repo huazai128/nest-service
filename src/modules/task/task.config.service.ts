@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 18:09:09
- * @LastEditTime: 2021-02-06 11:02:28
+ * @LastEditTime: 2021-02-20 17:32:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.config.ts
@@ -16,18 +16,20 @@ import { EventEmitter } from 'events'
  * @class PhantomTask
  */
 export class PhantomTask {
+    // page 对象
     public clientPage: WebPage
+    // phantom 对象
     public phantomInstance: PhantomJS
+    // 限制次数
     private num: number = 0
     private event: EventEmitter
     constructor() {
         if (!this.event) {
             this.event = new EventEmitter()
         }
-        console.log('=======初始化了')
     }
     /**
-     * 初始化访问页面
+     * 初始化访问
      * @memberof PhantomTask
      */
     public async initTask() {
@@ -81,12 +83,12 @@ export class PhantomTask {
                     console.log('[phantomjs task log]监听url', targetUrl)
                 })
                 // 打卡页面, es6代码不支持, 也不支持伪ssr, 千聊项目所使用的是ssr,获取的是html文件不包含react代码
-                const result = await this.clientPage.open('http://m.dev1.qlchat.com/fire/test')
+                const result = await this.clientPage.open('http://www.appstest.cn/')
                 // 查看页面
                 const content = await this.clientPage.property('content')
-                // console.log(content)
+                console.log(content)
                 console.log('[phantomjs task log]完成页面加载', result)
-                return result
+                // return result
             } catch (error) {
                 console.log('page error:', error)
                 this.phantomInstance && this.phantomInstance.exit()
@@ -131,6 +133,5 @@ export class PhantomTask {
                 // test()
             }, [cardData])
         })
-
     }
 }

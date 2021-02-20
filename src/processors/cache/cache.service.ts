@@ -2,7 +2,7 @@
  * @Description: In User Settings Edit
  * @Author: your name
  * @Date: 2019-10-05 21:43:45
- * @LastEditTime: 2021-01-30 13:15:32
+ * @LastEditTime: 2021-02-19 17:12:51
  * @LastEditors: Please set LastEditors
  */
 import { RedisClient } from 'redis'
@@ -71,7 +71,7 @@ export interface ICacheIntervalIOOption<T> extends ICacheIntervalOption<T> {
 export class CacheService {
     // 此处提供redis相关挨批操作
     public redisClient: RedisClient
-    // 页面缓存
+    // 缓存
     private cache!: ICacheManager
     // 通过注入拿到config.service返回的配置信息
     constructor(@Inject(CACHE_MANAGER) cache: ICacheManager) {
@@ -92,7 +92,7 @@ export class CacheService {
         })
     }
 
-    // 客户端是否可用
+    // 检查缓存是否可用
     private get checkCacheServiceAvailable(): boolean {
         return this.redisClient.connected
     }
@@ -143,7 +143,8 @@ export class CacheService {
         return new Promise((resolve, reject) => {
             this.redisClient.rpop(key, (err, data) => {
                 if (err) {
-                    reject()
+                    console.error('[task error (share card)]: 获取队列最后一个数据失败 ', err)
+                    reject(err)
                 } else {
                     resolve(data)
                 }
@@ -161,6 +162,7 @@ export class CacheService {
         return new Promise((resolve, reject) => {
             this.redisClient.llen(key, (err, len) => {
                 if (err) {
+                    console.error('[task error (share card)]: 添加任务长度失败 ', err)
                     reject(err)
                 } else {
                     resolve(len)

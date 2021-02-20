@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 17:27:43
- * @LastEditTime: 2021-02-13 15:57:33
+ * @LastEditTime: 2021-02-20 16:49:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.service.ts
@@ -34,6 +34,8 @@ export class TaskService extends ServiceExt {
     private isJoin: boolean = false
     // 用于标识是否清除page实例
     private isClear: boolean = false
+    // 倒计时
+    private timer: any = null
     constructor(
         private readonly httpService: HttpService,
         private readonly cacheService: CacheService,
@@ -49,43 +51,52 @@ export class TaskService extends ServiceExt {
      */
     public async cardTask(body: TaskDrawModel) {
         this.isJoin = true
-        this.isClear = false
+        this.isClear && (this.isClear = false)
         // 产生唯一标识， 用于后续逻辑判断
         body.taskKey = Date.now() + '' + Math.round(Math.random() * 1000)
         const data = JSON.stringify(body).replace(/\u2028/g, '')
         // 更加权重追加到相应的List数据中
         const key = Object.is(body.weight, 'max') ? this.HEIGH_CARD_KEY : this.SHARE_CARD_DATA
-        const status = await this.cacheService.lpush(key, data)
-        setTimeout(async () => {
-            // 如果不存在任务， 就创建
-            if (!this.phantomTask.phantomInstance) {
-                await this.phantomTask.initTask()
-                // 更新任务key
-                this.currentRedisKey = key
-                this.taskRun()
-            }
-            this.isJoin = false
-        }, 10)
-        return { msg: Object.is(status, 'success') ? '任务添加成功' : '添加任务到队列失败' }
+        try {
+            const status = await this.cacheService.lpush(key, data)
+            setTimeout(async () => {
+                // 如果不存在任务， 就创建
+                if (!this.phantomTask.phantomInstance) {
+                    await this.phantomTask.initTask()
+                    // 更新任务key
+                    this.currentRedisKey = key
+                    this.taskRun(true)
+                }
+                this.isJoin = false
+            }, 10)
+            return { code: 200, msg: '添加任务到成功'}
+        } catch (error) {
+            return { msg: '添加任务到队列失败' }
+        }
     }
 
     /**
      * 运行任务
      * @private
+     * @param {boolean} [flag]
      * @memberof TaskService
      */
-    private async taskRun() {
+    private async taskRun(flag?: boolean) {
         try {
+            // 判断当前是否存在高任务
+            if (this.currentRedisKey !== this.HEIGH_CARD_KEY && !flag) {
+                await this.heightTask()
+            }
             // 获取任务长度
             const len = await this.cacheService.llen(this.currentRedisKey)
             if (len > 0) {
-                const timer = null
+                // tslint:disable-next-line:prefer-const
                 console.log('[task log (share card)]: key=', this.currentRedisKey , ' 当前任务余量 ', len)
                 Promise.race([
                     new Promise(async (resolve, reject) => {
                         try {
                             await this.createTask()
-                            clearTimeout(timer)
+                            clearTimeout(this.timer)
                             resolve('')
                         } catch (error) {
                             reject(error)
@@ -94,7 +105,7 @@ export class TaskService extends ServiceExt {
                     new Promise(async (resolve, reject) => {
                         try {
                             // 防止某个任务被卡住影响所有画卡任务
-                            await this.taskOvertime(timer)
+                            await this.taskOvertime()
                         } catch (error) {
                             reject(error)
                         }
@@ -112,6 +123,9 @@ export class TaskService extends ServiceExt {
                     this.currentTaskData = null
                     this.taskRun()
                 })
+            } else {
+                this.clearTask()
+                console.log('[task log (share card)]: 当前没有任何数据了!!!')
             }
         } catch (error) {
             console.error('[task log (share card)]: 查询剩余任务数量出错', error)
@@ -122,6 +136,15 @@ export class TaskService extends ServiceExt {
         }
     }
 
+    /**
+     * 判断是否有高任务存在，存在优先运行高任务
+     * @private
+     * @memberof TaskService
+     */
+    private async heightTask() {
+        const len = await this.cacheService.llen(this.HEIGH_CARD_KEY)
+        this.currentRedisKey = len > 0 ? this.HEIGH_CARD_KEY : this.SHARE_CARD_DATA
+    }
     /**
      * 读取数据开始任务
      * @private
@@ -143,7 +166,7 @@ export class TaskService extends ServiceExt {
                 // 触发前端画卡
                 const imageUrl = await this.phantomTask.createShareCard(shareData.drawData)
                 console.log(`taskKey=${taskKey} --- shareData.taskKey=${shareData.taskKey}`)
-                // 判断是否是否一致
+                // 判断是否是否一致，主要为了防止任务超时
                 if (taskKey === shareData.taskKey) {
                     console.log('画卡成功开始请求回调接口---------')
                     this.requestCallback(imageUrl, shareData)
@@ -176,7 +199,7 @@ export class TaskService extends ServiceExt {
                 imgUrl
             }
             this.httpService.post(data.cbApi, {...parmas}).pipe(
-                retry(3) // 重连三次
+                retry(3) // 重试三次
             ).subscribe(() => {
                 console.log('请求成功')
             })
@@ -188,13 +211,12 @@ export class TaskService extends ServiceExt {
     /**
      * 用于处理任务超时问题，阻塞画卡进度
      * @private
-     * @param {*} timer
      * @memberof TaskService
      */
-    private taskOvertime(timer: any) {
+    private taskOvertime() {
         const _serverRequestStartTime: [number, number] = process.hrtime()
         return new Promise((resolve, reject) => {
-            timer = setTimeout(async () => {
+            this.timer = setTimeout(async () => {
                 const _serverRequestEndTime = process.hrtime()
                 const ms = (_serverRequestEndTime[0] - _serverRequestStartTime[0]) * 1e3 + (_serverRequestEndTime[1] - _serverRequestStartTime[1]) * 1e-6
                 console.error('[task log (share card)]: 失败用时: ', ms, 'ms')
@@ -205,6 +227,7 @@ export class TaskService extends ServiceExt {
                 } else {
                     console.log('任务已经被重试过，不再重试任务')
                 }
+                clearTimeout(this.timer)
                 reject('create card timeout.超时!')
             }, 5000)
         })

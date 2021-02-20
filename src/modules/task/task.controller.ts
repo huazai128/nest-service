@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-25 17:27:08
- * @LastEditTime: 2021-02-05 17:51:23
+ * @LastEditTime: 2021-02-20 15:43:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /nest-service/src/modules/task/task.conntroller.ts
@@ -88,7 +88,6 @@ export class TaskController {
             userId: '',
             taskId: '',
         }
-        const result = await this.taskService.cardTask(params)
-        return result
+        return await this.taskService.cardTask(params)
     }
 }

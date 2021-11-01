@@ -39,6 +39,7 @@ export class AuthService extends ServiceExt {
             logger.error('账号或密码不能为空', loginDto)
             return { msg: '账号或密码不能为空' }
         }
+        // await this.userService.createUser(loginDto)
         const user = await this.userService.findUserByAccount(account)
         if (!user) {
             return { msg: '用户不存在' }

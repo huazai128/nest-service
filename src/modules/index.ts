@@ -12,6 +12,7 @@ import { ArticleModule } from './article/article.module'
 import { ExpansionModule } from './expansion/expansion.module'
 import { UplaodModule } from './upload/upload.module'
 import { TaskModule } from './task/task.module'
+import { CardModule } from './card/card.module'
 
 export default [
     UserModule,
@@ -20,5 +21,6 @@ export default [
     ArticleModule,
     ExpansionModule,
     UplaodModule,
-    TaskModule
+    TaskModule,
+    CardModule,
 ]
